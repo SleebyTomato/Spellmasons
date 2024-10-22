@@ -45,6 +45,7 @@ const playerUnit: UnitSource = {
       const cost = calculateCost(cards, {})
       const sufficientMana = cost.manaCost <= unit.mana;
       const sufficientHealth = cost.healthCost <= unit.health;
+      const sufficientStamina = cost.staminaCost <= unit.stamina;
       if (sufficientHealth && sufficientMana) {
         // `target as Vec2` because above typeGuard narrows it
         Unit.orient(unit, vec2Target);
@@ -77,6 +78,8 @@ const playerUnit: UnitSource = {
           floatingText({ coords: unit, text: i18n('insufficient mana'), style: { fill: 'red' } });
         } else if (!sufficientHealth) {
           floatingText({ coords: unit, text: i18n('insufficient health'), style: { fill: 'red' } });
+        }else if (!sufficientStamina) {
+          floatingText({ coords: unit, text: i18n('insufficient stamina'), style: { fill: 'red' } });
         }
       }
     } else {

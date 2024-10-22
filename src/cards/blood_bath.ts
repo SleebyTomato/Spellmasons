@@ -13,6 +13,7 @@ const spell: Spell = {
     category: CardCategory.Damage,
     manaCost: 10,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     supportQuantity: false,
     allowNonUnitTarget: true,

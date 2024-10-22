@@ -20,6 +20,7 @@ const spell: Spell = {
     supportQuantity: true,
     manaCost: 60,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 3,
     probability: probabilityMap[CardRarity.SPECIAL],
     thumbnail: 'spellIconShield.png',

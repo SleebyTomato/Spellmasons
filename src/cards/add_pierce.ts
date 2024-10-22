@@ -12,6 +12,7 @@ const spell: Spell = {
     requires: [arrowCardId],
     manaCost: 15,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     supportQuantity: true,
     ignoreRange: true,

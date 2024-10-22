@@ -17,6 +17,7 @@ const spell: Spell = {
     requires: [manaBurnCardId],
     supportQuantity: true,
     manaCost: 0,
+    staminaCost: 0,
     costGrowthAlgorithm: 'nlogn',
     healthCost: health_burn,
     expenseScaling: 1,

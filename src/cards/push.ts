@@ -13,6 +13,7 @@ const spell: Spell = {
     sfx: 'push',
     manaCost: 10,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.COMMON],
     thumbnail: 'spellIconPush.png',

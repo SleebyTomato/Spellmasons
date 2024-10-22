@@ -25,6 +25,7 @@ import { inexhaustibleId } from "../modifierInexhaustible";
 export interface CardCost {
     manaCost: number;
     healthCost: number;
+    staminaCost: number;
 }
 export function isRune(m?: Modifiers): boolean {
     return !!(m && (m._costPerUpgrade || m.keepBetweenLevels));
@@ -131,9 +132,10 @@ export function oneOffImage(coords: Vec2, imagePath: string, parent: Container |
 // @ts-ignore: for menu
 globalThis.calculateCostForSingleCard = calculateCostForSingleCard
 export function calculateCostForSingleCard(card: ICard, timesUsedSoFar: number = 0, caster?: IPlayer): CardCost {
-    let cardCost = { manaCost: 0, healthCost: 0 }
+    let cardCost = { manaCost: 0, healthCost: 0, staminaCost: 0 }
     cardCost.manaCost += card.manaCost;
     cardCost.healthCost += card.healthCost;
+    cardCost.staminaCost += card.staminaCost;
     // || 0 protects against multiplying by undefined
     // + 2 because log2(2) == 1 so 2 should be the starting number for the first time a user casts; so if 
     // the usage count is 1 (the caster has already used it once), we get log2(3) which is 1.58
@@ -147,10 +149,12 @@ export function calculateCostForSingleCard(card: ICard, timesUsedSoFar: number =
             : Math.log2(timesUsedSoFar + 2);
     cardCost.manaCost *= multiplier;
     cardCost.healthCost *= multiplier;
+    cardCost.staminaCost *= multiplier;
 
     // cost should be a whole number for the sake of the player experience
     cardCost.manaCost = Math.floor(cardCost.manaCost);
     cardCost.healthCost = Math.floor(cardCost.healthCost);
+    cardCost.staminaCost = Math.floor(cardCost.staminaCost);
 
     // Handle unique changes due to player mageType
     if (caster) {
@@ -221,7 +225,7 @@ export function calculateCostForSingleCard(card: ICard, timesUsedSoFar: number =
     return cardCost
 }
 export function calculateCost(cards: ICard[], casterCardUsage: CardUsage, caster?: IPlayer): CardCost {
-    let cost: CardCost = { manaCost: 0, healthCost: 0 };
+    let cost: CardCost = { manaCost: 0, healthCost: 0, staminaCost: 0 };
     // Tallys how many times a card has been used as the cards array is iterated
     // this is necessary so that if you cast 3 consecutive spells of the same id
     // in one cast, each subsequent one will become more expensive
@@ -233,11 +237,13 @@ export function calculateCost(cards: ICard[], casterCardUsage: CardUsage, caster
         const singleCardCost = calculateCostForSingleCard(card, (casterCardUsage[card.id] || 0) + (thisCalculationUsage[card.id] || 0), caster);
         cost.manaCost += singleCardCost.manaCost;
         cost.healthCost += singleCardCost.healthCost;
+        cost.staminaCost += singleCardCost.staminaCost;
         thisCalculationUsage[card.id] += 1;
     }
     // cost should be a whole number for the sake of the player experience
     cost.manaCost = Math.floor(cost.manaCost);
     cost.healthCost = Math.floor(cost.healthCost);
+    cost.staminaCost = Math.floor(cost.staminaCost);
     return cost;
 }
 export function _getCardsFromIds(cardIds: string[], cards: { [cardId: string]: ICard }): ICard[] {

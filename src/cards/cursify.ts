@@ -12,6 +12,7 @@ const spell: Spell = {
     costGrowthAlgorithm: 'exponential',
     manaCost: 30,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     // Forbidden because it is SO powerful when used on
     // minibosses and with it's synergies

@@ -21,6 +21,7 @@ const spell: Spell = {
     supportQuantity: false,
     manaCost: 25,
     healthCost: 0,
+    staminaCost: 0,
     costGrowthAlgorithm: 'nlogn',
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.COMMON],

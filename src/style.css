@@ -329,21 +329,21 @@ invisibly blocked, change with caution! */
   pointer-events: all;
 }
 
-.recording-shorts #inspector-tooltip {
-  top: 30%;
-}
 .recording-shorts #inventory-container {
   /* This makes width 1080 which is recording resolution */
-  height:605px;
+  height: 605px;
   margin-bottom: 40%;
 }
+
 .recording-shorts #ui-positioner {
-  left:0;
-  width:1080px;
+  left: 0;
+  width: 1080px;
 }
+
 .recording-shorts .doob-stats {
-  display:none;
+  display: none;
 }
+
 .recording-shorts #camera-recenter-tip {
   display: none !important;
 }
@@ -613,6 +613,17 @@ invisibly blocked, change with caution! */
   border: 2px solid #522626;
   color: #522626;
 }
+
+.card-stamina-badge {
+  background-color: #d3ac41;
+  border: 2px solid #d3ac41;
+}
+
+.card-stamina-badge.modified-by-usage {
+  border: 2px solid #756330;
+  color: #756330;
+}
+
 
 .button-wrapper .hotkey-badge-holder {
   bottom: -27px;

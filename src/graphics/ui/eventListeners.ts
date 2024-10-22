@@ -20,7 +20,7 @@ import {
 import { toggleMenu } from '../../views';
 import { View } from '../../View';
 import * as config from '../../config';
-import { cleanBlood, cameraAutoFollow, getCamera, moveCamera, toggleHUD, setCameraToMapCenter, CLASS_HUD_HIDDEN } from '../PixiUtils';
+import { cleanBlood, cameraAutoFollow, getCamera, moveCamera, toggleHUD, setCameraToMapCenter } from '../PixiUtils';
 import { isOutOfRange } from '../../PlayerUtils';
 import { vec2ToOneDimentionIndexPreventWrap } from '../../jmath/ArrayUtil';
 import * as Vec from '../../jmath/Vec';
@@ -43,7 +43,6 @@ import { isSinglePlayer } from '../../network/wsPieSetup';
 import { elAdminPowerBar, elAdminPowerBarInput, elAdminPowerBarOptions } from '../../HTMLElements';
 import { targetCursedId } from '../../cards/target_curse';
 import { distance } from '../../jmath/math';
-import { glow } from '../../jmath/YTShorts';
 
 export const keyDown = {
   showWalkRope: false,
@@ -53,7 +52,6 @@ export const keyDown = {
   cameraRight: false
 }
 
-const CLASS_RECORDING_SHORTS = 'recording-shorts';
 let runPredictionsIdleCallbackId: number;
 globalThis.addEventListener('keydown', nonUnderworldKeydownListener);
 function nonUnderworldKeydownListener(event: KeyboardEvent) {
@@ -100,13 +98,6 @@ export function keydownListener(overworld: Overworld, event: KeyboardEvent) {
     return;
   }
   //console.warn("CODE: ", event.code);
-  if (globalThis.adminMode && event.code === 'Period' && overworld.underworld) {
-    // Custom trigger for recording yt videos and shorts
-    if (selectedUnit) {
-
-      glow(selectedUnit);
-    }
-  }
   // Disable default chromium actions to prevent weird behavior
   if (event.code == 'ShiftLeft' || event.code == 'ShiftRight') {
     event.preventDefault();
@@ -902,6 +893,7 @@ export function clickHandler(overworld: Overworld, e: MouseEvent) {
         if (globalThis.spellCasting) {
           Player.setSpellmasonsToChannellingAnimation(selfPlayer);
         }
+        selfPlayer.unit.stamina = Math.max(0, selfPlayer.unit.stamina);
         // syncPredictionEntities to update the mana and health of predictionPlayer if the spell were to be cast
         // so that we can check in the next block if there is insufficient health or mana to cast it.
         underworld.syncPredictionEntities();
@@ -927,9 +919,10 @@ export function clickHandler(overworld: Overworld, e: MouseEvent) {
             casterPlayer: selfPlayer,
 
           }).then((effectState) => {
-            // Ensure that the mana left after casting the prediction spell is not negative.
-            // If it is negative, don't allow the cast because the caster has insufficient mana
-            if ((effectState.casterUnit.mana >= 0)) {
+            // Ensure that the mana and stamina left after casting the prediction spell is not negative.
+            // If it is negative, don't allow the cast because the caster has insufficient mana or stamina
+            
+            if ((effectState.casterUnit.mana >= 0) && effectState.casterUnit.stamina >= 0) {
               clearSpellEffectProjection(underworld, true);
               overworld.pie.sendData({
                 type: MESSAGE_TYPES.SPELL,
@@ -944,13 +937,21 @@ export function clickHandler(overworld: Overworld, e: MouseEvent) {
               // Now that the cast has begun, clear the prediction tint so it doesn't color the targeted units anymore
               clearTints(underworld);
             } else {
-              floatingText({
-                coords: casterUnit,
-                text: 'Insufficient Mana',
-                style: { fill: errorRed, fontSize: '50px', ...config.PIXI_TEXT_DROP_SHADOW }
-              })
-              console.log('Spell could not be cast, insufficient mana');
-
+              if (effectState.casterUnit.mana < 0) {
+                floatingText({
+                  coords: casterUnit,
+                  text: 'Insufficient Mana',
+                  style: { fill: errorRed, fontSize: '50px', ...config.PIXI_TEXT_DROP_SHADOW }
+                })
+                console.log('Spell could not be cast, insufficient mana');
+              } else {
+                floatingText({
+                  coords: casterUnit,
+                  text: 'Insufficient Stamina',
+                  style: { fill: errorRed, fontSize: '50px', ...config.PIXI_TEXT_DROP_SHADOW }
+                })
+                console.log('Spell could not be cast, insufficient stamina');
+              }
             }
 
           })
@@ -1031,7 +1032,7 @@ function tryShowDevContextMenu(overworld: Overworld, e: MouseEvent, mousePos: Ve
 }
 export const adminCommands: { [label: string]: AdminContextMenuOption } = {};
 export function triggerAdminCommand(label: string, clientId: string, payload: any) {
-  const { action, isActiveClass } = adminCommands[label] || {};
+  const { action } = adminCommands[label] || {};
   if (action) {
     action({ clientId, ...payload });
   } else {
@@ -1049,12 +1050,8 @@ interface AdminContextMenuOption {
   action: AdminAction;
   supportInMultiplayer: boolean;
   label: string;
-  // Shows an "on" label if this class exists on the body
-  isActiveClass?: string;
   domQueryContainer: string;
 }
-const CLASS_HIDE_LOBBY = 'hide-lobby';
-const CLASS_HIDE_CARD_HOLDERS = 'hide-card-holders';
 export function registerAdminContextMenuOptions(overworld: Overworld) {
 
   const options: AdminContextMenuOption[] = [
@@ -1126,7 +1123,6 @@ export function registerAdminContextMenuOptions(overworld: Overworld) {
     },
     {
       label: '🎥 Toggle game screen UI',
-      isActiveClass: CLASS_HUD_HIDDEN,
       action: () => {
         toggleHUD();
       },
@@ -1135,32 +1131,25 @@ export function registerAdminContextMenuOptions(overworld: Overworld) {
     },
     {
       label: '📹 Toggle Player List Visibility',
-      isActiveClass: CLASS_HIDE_LOBBY,
       action: () => {
-        document.body?.classList.toggle(CLASS_HIDE_LOBBY);
+        document.body?.classList.toggle('hide-lobby');
       },
       supportInMultiplayer: false,
       domQueryContainer: '#menu-self',
     },
     {
       label: '📱 Recording Shorts',
-      isActiveClass: CLASS_RECORDING_SHORTS,
       action: () => {
-        document.body?.classList.toggle(CLASS_RECORDING_SHORTS);
-        globalThis.recordingShorts = !globalThis.recordingShorts;
-        if (player) {
-          player.unit.moveSpeed = 0.045;
-        }
+        document.body?.classList.toggle('recording-shorts');
       },
       supportInMultiplayer: false,
       domQueryContainer: '#menu-self',
     },
     {
       label: '🃏 Toggle UI',
-      isActiveClass: CLASS_HIDE_CARD_HOLDERS,
       action: () => {
         // Hides a portion of the UI but not all of it for recording or screenshots
-        document.body?.classList.toggle(CLASS_HIDE_CARD_HOLDERS);
+        document.body?.classList.toggle('hide-card-holders');
       },
       supportInMultiplayer: false,
       domQueryContainer: '#menu-self',
@@ -1990,15 +1979,14 @@ function createContextMenuOptions(menu: HTMLElement, overworld: Overworld) {
     return;
   }
   for (let option of Object.values(adminCommands)) {
-    const { label, domQueryContainer, isActiveClass } = option;
+    const { label, domQueryContainer } = option;
     // Make DOM button to trigger command
     let el = document.createElement('li');
     if (Object.keys(allUnits).includes(label)) {
       // Add unit summon image to help identify them
       el.innerHTML = `<img width="32px" height="32px" src="${CardUI.getSpellThumbnailPath(`spellIconSummon_${label.split(' ').join('').toLowerCase()}.png`)}"/>&nbsp;${label}`
     } else {
-      const isActive = document && isActiveClass && document.body.classList.contains(isActiveClass);
-      el.innerHTML = isActive ? `✅ ON: ${label}` : label;
+      el.innerHTML = label;
     }
     // cache mouse position when context menu is created
     const pos = overworld.underworld.getMousePos();

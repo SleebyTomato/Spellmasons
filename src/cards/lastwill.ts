@@ -26,6 +26,7 @@ const spell: Spell = {
     supportQuantity: true,
     manaCost: 15,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.COMMON],
     thumbnail: 'spellIconLastWill.png',
@@ -72,13 +73,13 @@ const spell: Spell = {
         if (choice) {
           const { index } = choice;
           if (coord) {
-            const pickup = underworld.spawnPickup(index, coord, prediction);
-            if (!prediction && pickup) {
+            underworld.spawnPickup(index, coord, prediction);
+            if (!prediction) {
               // Notify spawn after a delay so it's appearance doesn't compete with
               // the visuals and the audio of the unit dying
               setTimeout(() => {
                 playSFXKey('spawnPotion');
-                floatingText({ coords: pickup, text: lastWillId });
+                floatingText({ coords: coord, text: lastWillId });
               }, 1000);
             }
           } else {

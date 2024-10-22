@@ -572,11 +572,6 @@ export default class Underworld {
 
         // TODO - For accuracy, we may have to predict these collisions before they happen (Needs testing)
         for (let unit of aliveUnits) {
-          // Omit the unit that triggered the projectile:
-          // Projectiles must not collide with the sourceUnit
-          if (unit == forceMoveInst.sourceUnit) {
-            continue;
-          }
           if (isVecIntersectingVecWithCustomRadius(pushedObject, unit, config.COLLISION_MESH_RADIUS)) {
             if (forceMoveInst.collidingUnitIds.includes(unit.id)) {
               // If already colliding with this unit, skip to the next one
@@ -2228,13 +2223,6 @@ export default class Underworld {
     if (this.players.length > 1 && this.levelIndex > 2) {
       explain(EXPLAIN_PING);
     }
-    // To ensure this isn't running when a player loads into the game, it should
-    // only run on level start
-    if (this.players.every(p => !p.isSpawned)) {
-      for (let u of this.units) {
-        Unit.runLevelStartEvents(u, this);
-      }
-    }
   }
   // creates a level from levelData
   createLevelSyncronous(levelData: LevelData) {
@@ -2242,16 +2230,6 @@ export default class Underworld {
     console.log('Setup: createLevelSyncronous');
     this.lastLevelCreated = levelData;
     setAbyssColor(levelData.biome);
-
-    // Only run when 0th level and greater finishes
-    // so it doesn't run on creation of the 0th level at
-    // which point levelIndex == -1.
-    if (this.levelIndex >= 0) {
-      for (let u of this.units) {
-        Unit.runLevelEndEvents(u, this);
-      }
-    }
-
     // Clean up the previous level
     this.cleanUpLevel();
 
@@ -4062,7 +4040,8 @@ ${CardUI.cardListToImages(player.stats.longestSpell)}
         // when executed if self-cast
         const spellCostTally = {
           manaCost: 0,
-          healthCost: 0
+          healthCost: 0,
+          staminaCost: 0,
         };
         let cardUsageCountPreCast = 0;
         if (!args.castForFree) {
@@ -4073,11 +4052,13 @@ ${CardUI.cardListToImages(player.stats.longestSpell)}
             const singleCardCost = calculateCostForSingleCard(card, timesUsedSoFar, casterPlayer);
             spellCostTally.manaCost += singleCardCost.manaCost;
             spellCostTally.healthCost += singleCardCost.healthCost;
+            spellCostTally.staminaCost += singleCardCost.staminaCost;
           }
-          // Apply mana and health cost to caster
+          // Apply mana, stamina and health cost to caster
           // Note: it is important that this is done BEFORE a card is actually cast because
           // the card may affect the caster's mana
           effectState.casterUnit.mana -= spellCostTally.manaCost;
+          effectState.casterUnit.stamina -= spellCostTally.staminaCost;
 
           // Increment card usage; now that the caster is using the card
           if (casterCardUsage[cardId] === undefined) {
@@ -4117,6 +4098,7 @@ ${CardUI.cardListToImages(player.stats.longestSpell)}
         // Refund mana if necessary 
         if (effectState.shouldRefundLastSpell) {
           effectState.casterUnit.mana += spellCostTally.manaCost;
+          effectState.casterUnit.stamina += spellCostTally.staminaCost;
         }
         // If refund, reset cardUsageCount
         if (effectState.shouldRefundLastSpell || args.castForFree) {

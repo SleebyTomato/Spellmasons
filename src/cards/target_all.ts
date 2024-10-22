@@ -2,11 +2,13 @@ import { addTarget, getCurrentTargets, Spell } from './index';
 import { CardCategory } from '../types/commonTypes';
 import { Vec2 } from '../jmath/Vec';
 import * as math from '../jmath/math';
+import * as Unit from '../entity/Unit';
 import { isUnit } from '../entity/Unit';
 import { isPickup } from '../entity/Pickup';
 import { CardRarity, probabilityMap } from '../types/commonTypes';
+import { animateTargetSimilar } from './target_similar';
 import { targetSimilar2Id } from './target_similar_2';
-import { animateConnections } from './connect';
+import { HasSpace } from '../entity/Type';
 
 const id = 'Target Kind';
 const NUMBER_OF_TARGETS_PER_STACK = 3;
@@ -18,6 +20,7 @@ const spell: Spell = {
     supportQuantity: true,
     manaCost: 60,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 3,
     probability: probabilityMap[CardRarity.FORBIDDEN],
     thumbnail: 'spellIconTargetKind.png',
@@ -63,14 +66,14 @@ const spell: Spell = {
         const newTargets = potentialTargets.slice(0, NUMBER_OF_TARGETS_PER_STACK * quantity);
         if (!prediction) {
           playSFXKey('targeting');
-          animators.push({ from: target, targets: newTargets.map(x => ({ to: x, playedSound: false })) });
+          animators.push({ pos: target, newTargets: newTargets });
         }
         for (let newTarget of newTargets) {
           addTarget(newTarget, state, underworld, prediction);
         }
       }
 
-      await animateConnections([animators], underworld, prediction);
+      await animateTargetSimilar(animators);
 
       return state;
     },

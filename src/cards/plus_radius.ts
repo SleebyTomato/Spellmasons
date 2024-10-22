@@ -11,11 +11,13 @@ const spell: Spell = {
     supportQuantity: true,
     manaCost: 10,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.UNCOMMON],
     thumbnail: 'spellIconPlusRadius.png',
     description: 'spell_plus_radius',
     allowNonUnitTarget: true,
+    frontload: true,
     effect: async (state, card, quantity, underworld, prediction, outOfRange) => {
       const adjustedRadiusBoost = radiusBoost * quantity;
       state.aggregator.radiusBoost += adjustedRadiusBoost;

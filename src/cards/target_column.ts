@@ -25,6 +25,7 @@ const spell: Spell = {
     supportQuantity: true,
     manaCost: 20,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.SPECIAL],
     thumbnail: 'spellIconTargetColumn.png',
@@ -70,7 +71,7 @@ const spell: Spell = {
         // Add entities to target
         withinColumn.forEach(e => addTarget(e, state, underworld, prediction));
       }
-      await animate(animateColumns, underworld, prediction);
+      await animate(animateColumns, underworld);
 
       return state;
     },
@@ -89,8 +90,8 @@ interface Column {
   width: number;
   depth: number;
 }
-async function animate(columns: Column[], underworld: Underworld, prediction: boolean) {
-  if (globalThis.headless || prediction) {
+async function animate(columns: Column[], underworld: Underworld) {
+  if (globalThis.headless) {
     // Animations do not occur on headless, so resolve immediately or else it
     // will just waste cycles on the server
     return Promise.resolve();

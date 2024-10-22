@@ -9,6 +9,7 @@ const spell: Spell = {
         category: CardCategory.Damage,
         manaCost: 10,
         healthCost: 0,
+        staminaCost: 0,
         expenseScaling: 0,
         probability: 50,
         thumbnail: 'spellIconDelay.png',

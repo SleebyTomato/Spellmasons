@@ -30,6 +30,7 @@ const spell: Spell = {
     sfx: 'meteorFall',
     manaCost: 60,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 2,
     allowNonUnitTarget: true,
     probability: probabilityMap[CardRarity.RARE],

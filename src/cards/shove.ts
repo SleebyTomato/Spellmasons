@@ -18,6 +18,7 @@ const spell: Spell = {
     sfx: 'shove',
     manaCost: 10,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.RARE],
     thumbnail: 'spellIconShove.png',

@@ -165,6 +165,7 @@ export default function makeSpellForUnitId(unitId: string, asMiniboss: boolean, 
       // Make mana cost dependent on how late they show up in the game
       manaCost,
       healthCost: 0,
+      staminaCost: 0,
       expenseScaling,
       // These cards are not available as upgrades and must be accessed through capture_soul
       probability: 0,

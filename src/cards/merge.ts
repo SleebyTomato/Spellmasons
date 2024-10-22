@@ -22,6 +22,7 @@ const spell: Spell = {
     category: CardCategory.Soul,
     manaCost: 40,
     healthCost: 0,
+    staminaCost: 0,
     costGrowthAlgorithm: 'exponential',
     probability: probabilityMap[CardRarity.FORBIDDEN],
     expenseScaling: 1,
@@ -78,11 +79,6 @@ const spell: Spell = {
 
       if (!mergedTargets.length) {
         refundLastSpell(state, prediction, 'Target things of the same type!')
-      }
-      if (!prediction && !globalThis.headless) {
-        await new Promise(res => {
-          setTimeout(res, 200);
-        })
       }
       return state;
     },

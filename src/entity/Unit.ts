@@ -1331,12 +1331,6 @@ export function canMove(unit: IUnit): boolean {
   }
   return true;
 }
-export function deadUnits(unit: IUnit, units: IUnit[]) {
-  // u !== unit excludes self from returning as the closest unit
-  return units.filter(
-    u => u !== unit && !u.alive && u.unitSubType !== UnitSubType.DOODAD,
-  );
-}
 export function livingUnitsInSameFaction(unit: IUnit, units: IUnit[]) {
   // u !== unit excludes self from returning as the closest unit
   return units.filter(
@@ -1563,16 +1557,6 @@ export async function runTurnStartEvents(unit: IUnit, underworld: Underworld, pr
     },
   ));
 }
-export function runLevelStartEvents(unit: IUnit, underworld: Underworld) {
-  const events = [...unit.events];
-  events.map((eventName) => {
-    const fn = Events.onLevelStartSource[eventName];
-    if (fn) {
-      fn(unit, underworld);
-    }
-  },
-  );
-}
 
 export async function runTurnEndEvents(unit: IUnit, underworld: Underworld, prediction: boolean) {
   const events = [...unit.events];
@@ -1584,17 +1568,6 @@ export async function runTurnEndEvents(unit: IUnit, underworld: Underworld, pred
       }
     },
   ));
-}
-
-export function runLevelEndEvents(unit: IUnit, underworld: Underworld) {
-  const events = [...unit.events];
-  events.map((eventName) => {
-    const fn = Events.onLevelEndSource[eventName];
-    if (fn) {
-      fn(unit, underworld);
-    }
-  },
-  );
 }
 
 export async function runPickupEvents(unit: IUnit, pickup: IPickup, underworld: Underworld, prediction: boolean) {
@@ -1714,9 +1687,9 @@ export function copyForPredictionUnit(u: IUnit, underworld: Underworld): IUnit {
     // prediction unit would cache-miss each time it was recreated
     // and needed a path
     path: rest.path,
-    // Prediction units should have full stamina because they will
-    // when it is their turn
-    stamina: rest.staminaMax,
+    // Prediction units should have the oringinal unit's stamina because its needed
+    // to predict stamina card cost
+    stamina: u.stamina,
     events: [...rest.events],
     // Deep copy modifiers so it doesn't mutate the unit's actual modifiers object
     modifiers: JSON.parse(JSON.stringify(modifiers)),
@@ -1816,7 +1789,7 @@ export function findLOSLocation(unit: IUnit, target: Vec2, underworld: Underworl
 // handles drawing attack range, bloat radius, and similar graphics each frame while a unit is selected
 export function drawSelectedGraphics(unit: IUnit, prediction: boolean = false, underworld: Underworld) {
 
-  if (globalThis.headless || prediction || !globalThis.selectedUnitGraphics || globalThis.recordingShorts) return;
+  if (globalThis.headless || prediction || !globalThis.selectedUnitGraphics) return;
 
   for (let drawEvent of unit.events) {
     const fn = Events.onDrawSelectedSource[drawEvent];

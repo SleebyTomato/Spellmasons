@@ -18,6 +18,7 @@ const spell: Spell = {
     sfx: 'swap',
     manaCost: 15,
     healthCost: 0,
+    staminaCost: 0,
     probability: probabilityMap[CardRarity.RARE],
     expenseScaling: 1,
     thumbnail: 'spellIconSwap.png',
@@ -55,11 +56,6 @@ const spell: Spell = {
         if (Unit.isUnit(object)) {
           teleport(object, newLocation, underworld, prediction, false, state.casterUnit);
         }
-      }
-      if (!prediction && !globalThis.headless) {
-        await new Promise(res => {
-          setTimeout(res, 300);
-        })
       }
       return state;
     },

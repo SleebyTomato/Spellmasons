@@ -17,6 +17,7 @@ const spell: Spell = {
     category: CardCategory.Soul,
     manaCost: 40,
     healthCost: 0,
+    staminaCost: 0,
     probability: probabilityMap[CardRarity.RARE],
     expenseScaling: 2,
     thumbnail: 'spellIconCaptureSoul.png',

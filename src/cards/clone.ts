@@ -22,6 +22,7 @@ const spell: Spell = {
     manaCost: 80,
     costGrowthAlgorithm: 'exponential',
     healthCost: 0,
+    staminaCost: 0,
     probability: probabilityMap[CardRarity.FORBIDDEN],
     expenseScaling: 1,
     supportQuantity: true,

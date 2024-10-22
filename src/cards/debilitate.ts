@@ -19,6 +19,7 @@ const spell: Spell = {
     manaCost: 20,
     costGrowthAlgorithm: 'nlogn',
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.UNCOMMON],
     thumbnail: 'spellIconDebilitate.png',

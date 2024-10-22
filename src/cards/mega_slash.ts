@@ -16,6 +16,7 @@ const spell: Spell = {
     supportQuantity: true,
     manaCost: 34,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.UNCOMMON],
     thumbnail: 'spellIconMegaSlash.png',

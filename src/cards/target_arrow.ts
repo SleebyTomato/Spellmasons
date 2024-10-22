@@ -20,6 +20,7 @@ const spell: Spell = {
     probability: probabilityMap[CardRarity.UNCOMMON],
     manaCost: 10,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     supportQuantity: true,
     ignoreRange: true,

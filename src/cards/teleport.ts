@@ -21,6 +21,7 @@ const spell: Spell = {
     requires: [swap_id],
     manaCost: 15,
     healthCost: 0,
+    staminaCost: 0,
     probability: probabilityMap[CardRarity.RARE],
     expenseScaling: 1,
     allowNonUnitTarget: true,

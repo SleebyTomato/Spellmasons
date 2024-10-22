@@ -15,6 +15,7 @@ const spell: Spell = {
     sfx: 'pull',
     manaCost: 15,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.UNCOMMON],
     thumbnail: 'spellIconVortex.png',

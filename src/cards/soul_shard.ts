@@ -21,6 +21,7 @@ const spell: Spell = {
     sfx: 'sacrifice',
     supportQuantity: false,
     manaCost: 60,
+    staminaCost: 0,
     healthCost: 0,
     expenseScaling: 3,
     probability: probabilityMap[CardRarity.RARE],

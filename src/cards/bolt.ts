@@ -22,6 +22,7 @@ const spell: Spell = {
     category: CardCategory.Damage,
     manaCost: 8,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.UNCOMMON],
     thumbnail: 'spellIconBolt.png',

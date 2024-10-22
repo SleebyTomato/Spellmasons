@@ -5,16 +5,13 @@ import type { Vec2 } from '../jmath/Vec';
 import Events, {
   onDealDamage,
   onTakeDamage,
-  onLiquid,
   onKill,
   onTooltip,
   onDeath,
   onMove,
   onAgro,
   onTurnStart,
-  onLevelStart,
   onTurnEnd,
-  onLevelEnd,
   onDrawSelected,
   onProjectileCollision,
   onTeleport,
@@ -117,7 +114,6 @@ import explosive_arrow from './explosive_arrow';
 import phantom_arrow from './phantom_arrow';
 import bolt from './bolt';
 import cursify from './cursify';
-import teach from './teach';
 // Not used as a card, for making half of looped enemies immune
 // on first turn
 import registerSummoningSickness from '../modifierSummoningSickness';
@@ -288,7 +284,6 @@ export interface Events {
   id?: string;
   onDealDamage?: onDealDamage;
   onTakeDamage?: onTakeDamage;
-  onLiquid?: onLiquid;
   onKill?: onKill;
   onTooltip?: onTooltip;
   onDeath?: onDeath;
@@ -300,9 +295,7 @@ export interface Events {
   // When all factions and turn phases have taken their turn.
   onFullTurnCycle?: onFullTurnCycle;
   onTurnStart?: onTurnStart;
-  onLevelStart?: onLevelStart;
   onTurnEnd?: onTurnEnd;
-  onLevelEnd?: onLevelEnd;
   onDrawSelected?: onDrawSelected;
   onProjectileCollision?: onProjectileCollision;
 }
@@ -336,9 +329,6 @@ export function registerEvents(id: string, events: Events) {
   if (events.onTakeDamage) {
     Events.onTakeDamageSource[id] = events.onTakeDamage;
   }
-  if (events.onLiquid) {
-    Events.onLiquidSource[id] = events.onLiquid;
-  }
   if (events.onKill) {
     Events.onKillSource[id] = events.onKill;
   }
@@ -366,14 +356,8 @@ export function registerEvents(id: string, events: Events) {
   if (events.onTurnStart) {
     Events.onTurnStartSource[id] = events.onTurnStart;
   }
-  if (events.onLevelStart) {
-    Events.onLevelStartSource[id] = events.onLevelStart;
-  }
   if (events.onTurnEnd) {
     Events.onTurnEndSource[id] = events.onTurnEnd;
-  }
-  if (events.onLevelEnd) {
-    Events.onLevelEndSource[id] = events.onLevelEnd;
   }
   if (events.onDrawSelected) {
     Events.onDrawSelectedSource[id] = events.onDrawSelected;
@@ -438,7 +422,6 @@ export function registerCards(overworld: Overworld) {
   config.IS_ANNIVERSARY_UPDATE_OUT &&
     registerSpell(bolt, overworld);
   registerSpell(cursify, overworld);
-  registerSpell(teach, overworld);
 
   // Blessings
   registerSpell(heal, overworld);
@@ -681,7 +664,7 @@ function cardToUpgrade(c: ICard, overworld: Overworld): IUpgrade {
       addCardToHand(c, player, overworld.underworld);
     },
     probability: probability,
-    cost: { healthCost: c.healthCost, manaCost: c.manaCost }
+    cost: { healthCost: c.healthCost, manaCost: c.manaCost, staminaCost: c.staminaCost }
   };
 }
 
@@ -787,6 +770,7 @@ export interface ICard {
   modName?: string;
   category: CardCategory;
   manaCost: number;
+  staminaCost: number;
   healthCost: number;
   costGrowthAlgorithm?: "nlogn" | "log" | 'exponential';
   probability: number;

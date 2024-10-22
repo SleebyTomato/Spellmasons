@@ -160,6 +160,12 @@ export function createUpgradeElement(upgrade: IUpgrade, player: IPlayer, underwo
     elCardHealthBadge.innerHTML = upgrade.cost.healthCost.toString();
     elCardBadgeHolder.appendChild(elCardHealthBadge);
   }
+  if (upgrade.cost.staminaCost) {
+    const elCardStaminaBadge = document.createElement('div');
+    elCardStaminaBadge.classList.add('card-stamina-badge', 'card-badge');
+    elCardStaminaBadge.innerHTML = upgrade.cost.staminaCost.toString();
+    elCardBadgeHolder.appendChild(elCardStaminaBadge);
+  }
 
   const thumbHolder = document.createElement('div');
   const thumbnail = document.createElement('img');
@@ -229,7 +235,7 @@ export const upgradeSourceWhenDead: IUpgrade[] = [
     // Resurrection happens automatically at the start of each level
     effect: () => { },
     probability: 30,
-    cost: { healthCost: 0, manaCost: 0 },
+    cost: { healthCost: 0, manaCost: 0, staminaCost: 0 },
   },
 ];
 

@@ -853,8 +853,8 @@ async function selectCard(player: Player.IPlayer, element: HTMLElement, cardId: 
     manageSelectedCardsParentVisibility();
     updateCardBadges(underworld);
     if (underworld) {
-      // runPredictions to update the mana and health of predictionPlayer if the spell were to be cast
-      // so that we can check in the next block if there is insufficient health or mana to cast it.
+      // runPredictions to update the mana, health and stamina of predictionPlayer if the spell were to be cast
+      // so that we can check in the next block if there is insufficient health, mana or stamina to cast it.
       await runPredictions(underworld, true);
     }
 
@@ -875,6 +875,16 @@ async function selectCard(player: Player.IPlayer, element: HTMLElement, cardId: 
         floatingText({
           coords: underworld.getMousePos(),
           text: 'Insufficient Health',
+          style: { fill: colors.errorRed, fontSize: '50px', ...config.PIXI_TEXT_DROP_SHADOW }
+        })
+        deselectLastCard(underworld);
+
+      }
+
+      if (predictionPlayerUnit.stamina < 0 && predictionPlayerUnit.stamina < player.unit.stamina) {
+        floatingText({
+          coords: underworld.getMousePos(),
+          text: 'Insufficient Stamina',
           style: { fill: colors.errorRed, fontSize: '50px', ...config.PIXI_TEXT_DROP_SHADOW }
         })
         deselectLastCard(underworld);
@@ -1063,6 +1073,7 @@ function createCardElement(content: Cards.ICard, underworld?: Underworld, fullSi
 
   elCardHotkeyBadgeHolder.appendChild(elCardHotkeyBadge);
   // Card costs
+
   const elCardBadgeHolder = document.createElement('div');
   elCardBadgeHolder.classList.add('card-badge-holder');
   element.appendChild(elCardBadgeHolder);
@@ -1075,6 +1086,10 @@ function createCardElement(content: Cards.ICard, underworld?: Underworld, fullSi
   elCardHealthBadge.classList.add('card-health-badge', 'card-badge');
   updateHealthBadge(elCardHealthBadge, cost.healthCost, content);
   elCardBadgeHolder.appendChild(elCardHealthBadge);
+  const elCardStaminaBadge = document.createElement('div');
+  elCardStaminaBadge.classList.add('card-stamina-badge', 'card-badge');
+  updateStaminaBadge(elCardStaminaBadge, cost.staminaCost, content);
+  elCardBadgeHolder.appendChild(elCardStaminaBadge);
   const thumbHolder = document.createElement('div');
   const thumbnail = document.createElement('img');
   thumbnail.src = getSpellThumbnailPath(hideAsUnknown ? 'unknown.png' : content.thumbnail);
@@ -1196,7 +1211,23 @@ function updateHealthBadge(elBadge: Element | null, healthCost: number, card: Ca
       elBadge.classList.remove('modified-by-usage')
     }
   } else {
-    console.warn("Err UI: Found card, but could not find associated health badge element to update mana cost");
+    console.warn("Err UI: Found card, but could not find associated health badge element to update health cost");
+  }
+}
+// @ts-ignore for menu
+globalThis.updateStaminaBadge = updateStaminaBadge
+function updateStaminaBadge(elBadge: Element | null, staminaCost: number, card: Cards.ICard) {
+  if (elBadge) {
+    // Hide badge if no cost
+    elBadge.classList.toggle('hidden', staminaCost === 0);
+    elBadge.innerHTML = staminaCost.toString();
+    if (staminaCost !== card.staminaCost) {
+      elBadge.classList.add('modified-by-usage')
+    } else {
+      elBadge.classList.remove('modified-by-usage')
+    }
+  } else {
+    console.warn("Err UI: Found card, but could not find associated stamina badge element to update stamina cost");
   }
 }
 // Updates the UI mana badge for cards in hand.  To be invoked whenever a player's
@@ -1221,14 +1252,19 @@ export function updateCardBadges(underworld: Underworld) {
         if (elBadgeH) {
           updateHealthBadge(elBadgeH, cost.healthCost, card);
         }
+        const elBadgesS = document.querySelectorAll(`#selected-cards .card[data-card-id="${card.id}"] .card-stamina-badge`);
+        const elBadgeS = Array.from(elBadgesS)[sliceOfCardsOfSameIdUntilCurrent.length];
+        if (elBadgeS) {
+          updateStaminaBadge(elBadgeS, cost.staminaCost, card);
+        }
       }
     }
     // Update cards in hand and inventory
     const isInventoryOpen = document.body?.classList.contains(openInvClass);
     // If inventory is open get all cards (inventory will always include cards in toolbar), if it is not, only get cards that are in the toolbar
     const cards = Cards.getCardsFromIds(isInventoryOpen ? globalThis.player.inventory : globalThis.player.cardsInToolbar.filter(x => !!x));
-    const badgesById: { [cardId: string]: { mana: HTMLElement[], health: HTMLElement[] } } = {}
-    function populateBadgesById(attr: 'mana' | 'health') {
+    const badgesById: { [cardId: string]: { mana: HTMLElement[], health: HTMLElement[], stamina: HTMLElement[] } } = {}
+    function populateBadgesById(attr: 'mana' | 'health' | 'stamina') {
       Array.from(document.querySelectorAll(`.card-holder .card .card-${attr}-badge, #inventory-content .card .card-${attr}-badge`)).forEach((badge) => {
         const cardEl = badge.closest('.card') as (HTMLElement | undefined);
         if (cardEl) {
@@ -1238,7 +1274,8 @@ export function updateCardBadges(underworld: Underworld) {
             if (!badgeRecord) {
               badgeRecord = {
                 mana: [],
-                health: []
+                health: [],
+                stamina: []
               }
               badgesById[cardId] = badgeRecord;
             }
@@ -1250,6 +1287,7 @@ export function updateCardBadges(underworld: Underworld) {
     }
     populateBadgesById('mana');
     populateBadgesById('health');
+    populateBadgesById('stamina');
     for (let card of cards) {
       const selectedCardElementsOfSameId = selectedCards.filter(c => c.id == card.id);
       const cost = calculateCostForSingleCard(card, (globalThis.player.cardUsageCounts[card.id] || 0) + selectedCardElementsOfSameId.length * card.expenseScaling, globalThis.player);
@@ -1260,6 +1298,9 @@ export function updateCardBadges(underworld: Underworld) {
         }
         for (let elBadgeHealth of badgeRecord.health) {
           updateHealthBadge(elBadgeHealth, cost.healthCost, card);
+        }
+        for (let elBadgeStamina of badgeRecord.stamina) {
+          updateStaminaBadge(elBadgeStamina, cost.staminaCost, card);
         }
       }
     }

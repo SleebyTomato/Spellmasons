@@ -25,6 +25,7 @@ const spell: Spell = {
     supportQuantity: true,
     manaCost: 30,
     healthCost: 0,
+    staminaCost: 0,
     expenseScaling: 1,
     probability: probabilityMap[CardRarity.SPECIAL],
     thumbnail: 'spellIconExpanding.png',
@@ -67,14 +68,14 @@ const spell: Spell = {
         // Add entities to target
         withinRadius.forEach(e => addTarget(e, state, underworld, prediction));
       }
-      await animate(animateCircles, underworld, prediction);
+      await animate(animateCircles, underworld);
 
       return state;
     },
   },
 };
-async function animate(circles: Circle[], underworld: Underworld, prediction: boolean) {
-  if (globalThis.headless || prediction) {
+async function animate(circles: Circle[], underworld: Underworld) {
+  if (globalThis.headless) {
     // Animations do not occur on headless, so resolve immediately or else it
     // will just waste cycles on the server
     return Promise.resolve();
